@@ -4,6 +4,8 @@
 package challenge_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -45,5 +47,63 @@ func TestServiceHealth(t *testing.T) {
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status 200, got %d", resp.StatusCode)
+	}
+}
+
+func TestListUsers(t *testing.T) {
+	resp, err := http.Get(apiBaseURL + "/users")
+	if err != nil {
+		t.Fatalf("Failed to list users: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", resp.StatusCode)
+	}
+}
+
+func TestAddUser(t *testing.T) {
+	user := map[string]string{
+		"firstname": "Test",
+		"lastname":  "User",
+		"login":     "testuser",
+		"password":  "testpass",
+	}
+	body, _ := json.Marshal(user)
+
+	resp, err := http.Post(apiBaseURL+"/users", "application/json", bytes.NewBuffer(body))
+	if err != nil {
+		t.Fatalf("Failed to add user: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		t.Errorf("Expected status 201, got %d", resp.StatusCode)
+	}
+}
+
+func TestGetUser(t *testing.T) {
+	resp, err := http.Get(apiBaseURL + "/users/1")
+	if err != nil {
+		t.Fatalf("Failed to get user: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", resp.StatusCode)
+	}
+}
+
+func TestDelUser(t *testing.T) {
+	req, _ := http.NewRequest("DELETE", apiBaseURL+"/users/2", nil)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("Failed to delete user: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusNotFound {
+		t.Errorf("Expected status 204 or 404, got %d", resp.StatusCode)
 	}
 }
