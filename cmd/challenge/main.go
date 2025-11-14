@@ -2,52 +2,38 @@ package main
 
 import (
 	"challenge/internal/api"
+	"challenge/internal/config"
 	"challenge/internal/db"
-	"challenge/internal/dummy"
 	"fmt"
 	"os"
 )
 
-func init() {
-	fmt.Println("DevSecOps challenge")
-
-	if len(os.Getenv("POSTGRES_HOST")) > 0 {
-		fmt.Println("Using postgresql DB driver")
-		db.PostgresConnection()
-	} else {
-		fmt.Println(os.Getenv("POSTGRES_HOST"))
-		db.SqliteConnector()
-	}
-
-	// Run migrations
-	db.Conn.AutoMigrate(&dummy.User{})
-
-	// Create the admin user
-	var users []dummy.User
-	db.Conn.Find(&users)
-	if len(users) == 0 {
-		fmt.Println("Could not find any users, bootstrapping an admin account")
-		adminPassword := os.Getenv("ADMIN_PASSWORD")
-		if adminPassword == "" {
-			adminPassword = "changeme"
-			fmt.Println("Warning: ADMIN_PASSWORD not set, using default")
-		}
-		admin := dummy.User{
-			Firstname: "Admin",
-			Lastname:  "Istrator",
-			Login:     "admin",
-			Password:  adminPassword,
-		}
-		if err := db.Conn.Create(&admin).Error; err != nil {
-			fmt.Printf("Could not create admin user, reason %v", err)
-			os.Exit(3)
-		}
-	} else {
-		fmt.Println("Found users, skipping admin account bootstrapping")
-	}
-
-}
-
 func main() {
-	api.Start()
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Printf("Failed to load configuration: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Initialize database
+	if err := db.Initialize(cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName); err != nil {
+		fmt.Printf("Failed to initialize database: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Seed admin user
+	if err := db.SeedAdminUser(cfg.AdminPassword); err != nil {
+		fmt.Printf("Failed to seed admin user: %v\n", err)
+		os.Exit(3)
+	}
+
+	// Start server
+	router := api.SetupRouter(db.Conn)
+
+	if cfg.TLSCertFile != "" && cfg.TLSKeyFile != "" {
+		router.RunTLS(":10000", cfg.TLSCertFile, cfg.TLSKeyFile)
+	} else {
+		router.Run(":10000")
+	}
 }

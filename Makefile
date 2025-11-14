@@ -7,7 +7,7 @@ DOCKER_COMPOSE_RESET = --renew-anon-volumes --force-recreate
 
 build: go-build docker-build
 
-test: integration-tests
+test: unit-tests integration-tests
 
 docker-build:
 	${DOCKER_COMPOSE_CONFIG} up --build --no-start
@@ -31,10 +31,13 @@ go-get:
 	go get ./...
 
 go-run:
-	[ -e test.db ] && rm test.db ; \
+	[ -e test.db ] && rm test.db || true ; \
 	TLS_CERT_FILE=./certs/cert.pem \
 	TLS_KEY_FILE=./certs/key.pem \
 	bin/challenge
+
+unit-tests:
+	go test -tags=!integration -v ./cmd/... ./internal/...
 
 integration-tests:
 	go test -tags=integration -v ./test

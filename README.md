@@ -1,54 +1,87 @@
 # DevSecOps Challenge
 
-You mission, [should you choose to accept it](https://www.youtube.com/watch?v=0TiqXFssKMY), is to step in the shoes of our new junior
-DevSecOps recruit.
+*Matthew White - mw419@pm.me*
 
-We have a some code waiting for you to review, of a simple app designed to manage a database of our secret agents, "Users" we call them.
-We hope to use this app as a gateway so they can authenticate to our systems in the future.
+## Project Summary
 
-You are now free to have a thorough look at the code and inspect the work done so far.
+This project demonstrates progressive development work through four pull requests. Each PR addresses specific concerns: establishing project structure and CI/CD automation, implementing REST API compliance with proper HTTP standards, hardening security through credential management and vulnerability remediation, and refactoring to clean architecture with comprehensive testing. The current state is not a complete product but a snapshot of work in progress. Future development might include authentication mechanisms, authorization controls, API versioning, observability features, and business logic that transforms this from a demo into a functional microservice with defined purpose.
 
-The goals are as follow:
-- For any issue you spot, propose a fix. But the best would be to implement a fitting solution.
-- Identify and implement any missing bits and best practices generally associated with your trade (being a DevSecOps, that is).
+Detailed summaries of each development phase are available in the `WORKSUMMARY/` directory, with individual markdown files corresponding to each pull request.
 
-## Requirements
+*Note: Technical implementation and narrative content within this project were developed with assistance from generative AI tools.*
 
-Special attention will be given to:
+## Building and Running
 
-- Requirement compliance.
-- Overall code formatting, readability and elegance.
-- The quality of the README.md and WORK_SUMMARY.md files
+The project uses a Makefile to standardize build and execution commands. All commands should be run from the repository root.
 
-### Must Haves
+### Build Containers
 
-- Good documentation
-- Everything "as-code" (infrastructure, pipeline, **everything**)
-- A **README.md** file is expected, to detail the chosen solution, how to run it and a short section about how to develop in your repository (git workflow, process, etc..).
-- A **WORK_SUMMARY.md** file is expected, to detail how you embrace that problem and sequentially, what was your solving approach
+Build both the Go binary and Docker containers:
 
-
-The solution should be hosted on a **private GitHub** or **private GitLab** repository or through a **zip file** sent by email.
-
-## The `challenge` app
-
-### Minimum Requirements
-
-This app that needs reviewing is written in `Golang`, to build and run it, you will need:
-
-- docker and docker-compose
-- golang (1.16)
-
-### Build and Run
-
-To build the Docker image:
-
-```shell
+```bash
 make build
 ```
 
-To run the stack with its Postgres SQL instance:
+This runs `go build` to create the binary in `bin/challenge` and builds Docker images defined in the compose configuration.
 
-```shell
-docker-compose up -d
+### Run with Docker Compose
+
+Start the application and PostgreSQL database:
+
+```bash
+make docker-up
 ```
+
+This starts containers in detached mode. The API serves on port 10000 with HTTPS if TLS certificates are configured via environment variables.
+
+Stop containers:
+
+```bash
+make docker-down
+```
+
+### Run the App Directly
+
+Run the Go binary directly without containers:
+
+```bash
+make go-run
+```
+
+This requires a local database or uses SQLite. TLS certificate paths are configured through environment variables.
+
+### Testing
+
+Run all tests (unit and integration):
+
+```bash
+make test
+```
+
+Run only unit tests:
+
+```bash
+make unit-tests
+```
+
+Run only integration tests (requires Docker containers):
+
+```bash
+make integration-tests
+```
+
+Unit tests validate individual components using mocks. Integration tests verify the complete stack including database interactions.
+
+## CI/CD Pipeline
+
+The GitHub Actions workflow (`.github/workflows/main.yml`) runs on pushes to `workspace` branch and pull requests to `main` branch. The pipeline contains two parallel jobs:
+
+**build-run-test**: Builds the application and containers, starts the Docker environment, executes all tests, then stops containers. This validates functional correctness.
+
+**build-scan**: Performs security scanning with three tools:
+- SAST (gosec) scans Go code for security issues
+- SCA (govulncheck) checks dependencies for known vulnerabilities  
+- Container scanning (Trivy) analyzes Docker images for vulnerabilities
+
+Both jobs require secrets (TLS certificates and environment configuration) injected from GitHub repository secrets. The workflow ensures code quality and security before changes are merged.
+
