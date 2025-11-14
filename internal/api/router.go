@@ -9,10 +9,10 @@ func setupRouter() *gin.Engine {
 	// route v1
 	v1 := r.Group("/v1")
 	{
-		v1.GET("users", ListUsers)
-		v1.POST("user/add", AddUser)
-		v1.GET("user/:id", GetUser)
-		v1.GET("user/delete/:id", DelUser)
+		v1.GET("/users", ListUsers)
+		v1.POST("/users", AddUser)
+		v1.GET("/users/:id", GetUser)
+		v1.DELETE("/users/:id", DelUser)
 	}
 
 	return r
