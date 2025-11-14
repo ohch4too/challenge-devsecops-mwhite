@@ -27,11 +27,16 @@ func init() {
 	db.Conn.Find(&users)
 	if len(users) == 0 {
 		fmt.Println("Could not find any users, bootstrapping an admin account")
+		adminPassword := os.Getenv("ADMIN_PASSWORD")
+		if adminPassword == "" {
+			adminPassword = "changeme"
+			fmt.Println("Warning: ADMIN_PASSWORD not set, using default")
+		}
 		admin := dummy.User{
 			Firstname: "Admin",
 			Lastname:  "Istrator",
 			Login:     "admin",
-			Password:  "changeme",
+			Password:  adminPassword,
 		}
 		if err := db.Conn.Create(&admin).Error; err != nil {
 			fmt.Printf("Could not create admin user, reason %v", err)

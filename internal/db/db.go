@@ -44,7 +44,12 @@ func SqliteConnector() error {
 
 func PostgresConnection() error {
 
-	dsn := fmt.Sprintf("host=%v user=%v password=6199178B-28C5-4960-89FD-B1E55E0044E6 dbname=challenge port=5432 sslmode=disable", DBHost, DBUser)
+	dbPassword := os.Getenv("POSTGRES_PASSWORD")
+	if dbPassword == "" {
+		fmt.Println("POSTGRES_PASSWORD not set")
+		return fmt.Errorf("POSTGRES_PASSWORD not set")
+	}
+	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=challenge port=5432 sslmode=disable", DBHost, DBUser, dbPassword)
 	Conn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {

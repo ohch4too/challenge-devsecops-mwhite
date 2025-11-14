@@ -5,6 +5,7 @@ import (
 
 	"challenge/internal/db"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -13,7 +14,7 @@ type User struct {
 	Firstname string `json:"firstname"`
 	Lastname  string `json:"lastname"`
 	Login     string `json:"login"`
-	Password  string `json:"password"`
+	Password  string `json:"-"`
 }
 
 // To manage more than one user object
@@ -22,11 +23,19 @@ var users []User
 // Add one user
 func UserAdd(u *User) (err error) {
 
+	// Hash password before saving
+	if u.Password != "" {
+		hashed, hashErr := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+		if hashErr != nil {
+			return hashErr
+		}
+		u.Password = string(hashed)
+	}
+
 	if err = db.Conn.Create(u).Error; err != nil {
 		return err
-	} else {
-		return nil
 	}
+	return nil
 
 }
 
@@ -47,8 +56,7 @@ func UserUpdate() {
 
 // Get one user
 func UserGet(u *User, id string) (err error) {
-	query := fmt.Sprintf("SELECT * FROM users WHERE ID = %v", id)
-	err = db.Conn.Raw(query).Scan(u).Error
+	err = db.Conn.Where("ID = ?", id).First(u).Error
 	return err
 }
 

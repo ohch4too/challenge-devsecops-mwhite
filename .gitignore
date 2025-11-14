@@ -1,3 +1,6 @@
 .idea/
 test.db
 bin/
+certs
+*.pem
+.env

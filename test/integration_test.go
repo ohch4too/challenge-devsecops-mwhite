@@ -5,6 +5,7 @@ package challenge_test
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,15 +14,21 @@ import (
 )
 
 const (
-	apiBaseURL = "http://localhost:10000/v1"
+	apiBaseURL = "https://localhost:10000/v1"
 	maxRetries = 5
 	retryDelay = 2 * time.Second
 )
 
+var httpClient = &http.Client{
+	Transport: &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	},
+}
+
 func waitForAPI(url string, timeout time.Duration) error {
 	deadline := time.Now().Add(timeout)
 	for time.Now().Before(deadline) {
-		resp, err := http.Get(url)
+		resp, err := httpClient.Get(url)
 		if err == nil {
 			resp.Body.Close()
 			return nil
@@ -39,7 +46,7 @@ func TestServiceHealth(t *testing.T) {
 	}
 
 	// Test the service endpoint
-	resp, err := http.Get(url)
+	resp, err := httpClient.Get(url)
 	if err != nil {
 		t.Fatalf("Failed to connect to service: %v", err)
 	}
@@ -51,7 +58,7 @@ func TestServiceHealth(t *testing.T) {
 }
 
 func TestListUsers(t *testing.T) {
-	resp, err := http.Get(apiBaseURL + "/users")
+	resp, err := httpClient.Get(apiBaseURL + "/users")
 	if err != nil {
 		t.Fatalf("Failed to list users: %v", err)
 	}
@@ -71,7 +78,7 @@ func TestAddUser(t *testing.T) {
 	}
 	body, _ := json.Marshal(user)
 
-	resp, err := http.Post(apiBaseURL+"/users", "application/json", bytes.NewBuffer(body))
+	resp, err := httpClient.Post(apiBaseURL+"/users", "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		t.Fatalf("Failed to add user: %v", err)
 	}
@@ -83,7 +90,7 @@ func TestAddUser(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-	resp, err := http.Get(apiBaseURL + "/users/1")
+	resp, err := httpClient.Get(apiBaseURL + "/users/1")
 	if err != nil {
 		t.Fatalf("Failed to get user: %v", err)
 	}
@@ -96,8 +103,7 @@ func TestGetUser(t *testing.T) {
 
 func TestDelUser(t *testing.T) {
 	req, _ := http.NewRequest("DELETE", apiBaseURL+"/users/2", nil)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		t.Fatalf("Failed to delete user: %v", err)
 	}
