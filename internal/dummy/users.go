@@ -3,7 +3,7 @@ package dummy
 import (
 	"fmt"
 
-	"challenge/db"
+	"challenge/internal/db"
 
 	"gorm.io/gorm"
 )

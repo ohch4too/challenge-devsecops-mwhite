@@ -1,0 +1,8 @@
+services: 
+
+  challenge: 
+    image: devsecops-junior-challenge-go:local
+    pull_policy: never
+    build:
+      context: ../../
+      dockerfile: Dockerfile

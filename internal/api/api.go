@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +18,7 @@ func RespondJSON(w *gin.Context, status int, payload interface{}) {
 	res.Status = status
 	res.Data = payload
 
-	w.JSON(200, res)
+	w.JSON(status, res)
 }
 
 func Start() {
