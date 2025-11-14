@@ -19,12 +19,14 @@ const (
 	retryDelay = 2 * time.Second
 )
 
+// httpClient is configured to skip TLS verification for self-signed certs
 var httpClient = &http.Client{
 	Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	},
 }
 
+// waitForAPI waits for the API to become available
 func waitForAPI(url string, timeout time.Duration) error {
 	deadline := time.Now().Add(timeout)
 	for time.Now().Before(deadline) {

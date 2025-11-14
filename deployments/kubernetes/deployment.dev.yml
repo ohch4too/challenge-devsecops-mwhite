@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: postgres:9.6.23-buster
+        image: postgres:18.0-trixie
         env:
         - name: POSTGRES_PASSWORD
           valueFrom:
