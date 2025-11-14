@@ -1,6 +1,6 @@
 # DevSecOps Challenge
 
-*Matthew White - mw419@pm.me*
+*Mike White - mw419@pm.me*
 
 ## Project Summary
 
@@ -9,6 +9,41 @@ This project demonstrates progressive development work through four pull request
 Detailed summaries of each development phase are available in the `WORKSUMMARY/` directory, with individual markdown files corresponding to each pull request.
 
 *Note: Technical implementation and narrative content within this project were developed with assistance from generative AI tools.*
+
+## Configuration Requirements
+
+### Local Development Secrets
+
+Before running the application locally, configure the following secrets:
+
+**TLS Certificates**: Create a `certs/` directory in the project root and place two files inside:
+- `cert.pem` - TLS certificate
+- `key.pem` - Private key
+
+Generate a self-signed certificate for local development:
+
+```bash
+openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -out cert.pem -days 365 -subj "/CN=localhost"
+```
+
+**Environment Variables**: Copy `.env.example` to `.env` and edit with your database passwords and other configuration values.
+
+### GitHub CI Secrets
+
+For the GitHub Actions pipeline to run successfully, configure these base64-encoded secrets in your repository settings. See the [GitHub documentation for creating encrypted secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets).
+
+Required secret variables:
+- `KEY_PEM_BASE64` - Base64-encoded private key
+- `CERT_PEM_BASE64` - Base64-encoded certificate
+- `ENV_FILE_BASE64` - Base64-encoded environment file
+
+Convert file content to base64 format:
+
+```bash
+cat .env | base64 -w0
+```
+
+Use this same command pattern for the certificate and key files, then add each encoded value as a secret in your GitHub repository settings.
 
 ## Building and Running
 
