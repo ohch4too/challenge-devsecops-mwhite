@@ -1,10 +1,11 @@
-FROM golang:1.16-buster as build
+FROM golang:1.16-buster AS build
 
 WORKDIR /go/src/app
 COPY . .
-RUN go build -o bin/challenge
 
-FROM golang:1.16-buster 
+RUN go build -o ./bin/challenge ./cmd/challenge
+
+FROM debian:buster
 
 USER root
 

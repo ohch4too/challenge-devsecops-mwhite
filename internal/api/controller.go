@@ -1,7 +1,7 @@
 package api
 
 import (
-	"challenge/dummy"
+	"challenge/internal/dummy"
 	"fmt"
 
 	"github.com/apex/log"
@@ -9,9 +9,6 @@ import (
 )
 
 func ListUsers(c *gin.Context) {
-	var users []dummy.User
-	c.BindJSON(&users)
-
 	users, n, err := dummy.UserList()
 	if err != nil {
 		log.Errorf("Impossible to fetch all users")

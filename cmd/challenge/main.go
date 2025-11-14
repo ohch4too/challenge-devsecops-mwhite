@@ -1,9 +1,9 @@
 package main
 
 import (
-	"challenge/api"
-	"challenge/db"
-	"challenge/dummy"
+	"challenge/internal/api"
+	"challenge/internal/db"
+	"challenge/internal/dummy"
 	"fmt"
 	"os"
 )
