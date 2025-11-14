@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,5 +24,13 @@ func RespondJSON(w *gin.Context, status int, payload interface{}) {
 
 func Start() {
 	router := setupRouter()
-	router.Run(":10000")
+
+	certFile := os.Getenv("TLS_CERT_FILE")
+	keyFile := os.Getenv("TLS_KEY_FILE")
+
+	if certFile != "" && keyFile != "" {
+		router.RunTLS(":10000", certFile, keyFile)
+	} else {
+		router.Run(":10000")
+	}
 }

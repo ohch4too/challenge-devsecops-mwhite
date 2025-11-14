@@ -1,13 +1,11 @@
-FROM golang:1.16-buster AS build
+FROM golang:1.25-trixie AS build
 
 WORKDIR /go/src/app
 COPY . .
 
 RUN go build -o ./bin/challenge ./cmd/challenge
 
-FROM debian:buster
-
-USER root
+FROM debian:trixie
 
 COPY --from=build /go/src/app/bin/challenge /usr/bin/challenge
 

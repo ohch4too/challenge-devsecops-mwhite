@@ -1,3 +1,6 @@
+-include .env
+export
+
 DOCKER_COMPOSE_DIR = ./deployments/docker-compose
 DOCKER_COMPOSE_CONFIG = docker compose -f ${DOCKER_COMPOSE_DIR}/docker-compose.yml -f ${DOCKER_COMPOSE_DIR}/docker-compose.dev.yml
 DOCKER_COMPOSE_RESET = --renew-anon-volumes --force-recreate
@@ -28,7 +31,10 @@ go-get:
 	go get ./...
 
 go-run:
-	[ -e test.db ] && rm test.db ; bin/challenge
+	[ -e test.db ] && rm test.db ; \
+	TLS_CERT_FILE=./certs/cert.pem \
+	TLS_KEY_FILE=./certs/key.pem \
+	bin/challenge
 
 integration-tests:
 	go test -tags=integration -v ./test

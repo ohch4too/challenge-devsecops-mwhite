@@ -4,11 +4,17 @@ services:
     image: docker.io/loftorbital/devsecops-junior-challenge-go:latest
     pull_policy: always
     restart: always
+    env_file:
+      - ../../.env
     environment: 
-      POSTGRES_PASSWORD: "6199178B-28C5-4960-89FD-B1E55E0044E6"
       POSTGRES_USER: "challenge"
       POSTGRES_DB: "challenge"
       POSTGRES_HOST: "postgres"
+      TLS_CERT_FILE: /etc/ssl/certs/cert.pem
+      TLS_KEY_FILE: /etc/ssl/private/key.pem
+    volumes:
+      - ../../certs/cert.pem:/etc/ssl/certs/cert.pem:ro
+      - ../../certs/key.pem:/etc/ssl/private/key.pem:ro
     ports: 
       - "10000:10000"
     depends_on:
@@ -16,9 +22,10 @@ services:
         condition: service_healthy
   
   postgres:
-    image: postgres:9.6.23-buster
+    image: postgres:18.0-trixie
+    env_file:
+      - ../../.env
     environment: 
-      POSTGRES_PASSWORD: "6199178B-28C5-4960-89FD-B1E55E0044E6"
       POSTGRES_USER: "challenge"
       POSTGRES_DB: "challenge"
     ports:
