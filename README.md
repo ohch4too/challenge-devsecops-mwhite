@@ -4,6 +4,8 @@
 
 ## Project Summary
 
+This was a 'hiring challenge' for a job with [Loft Orbital] (https://loftorbital.com/).
+
 This project demonstrates progressive development work through four pull requests. Each PR addresses specific concerns: establishing project structure and CI/CD automation, implementing REST API compliance with proper HTTP standards, hardening security through credential management and vulnerability remediation, and refactoring to clean architecture with comprehensive testing. The current state is not a complete product but a snapshot of work in progress. Future development might include authentication mechanisms, authorization controls, API versioning, observability features, and business logic that transforms this from a demo into a functional microservice with defined purpose.
 
 Detailed summaries of each development phase are available in the `WORKSUMMARY/` directory, with individual markdown files corresponding to each pull request.
